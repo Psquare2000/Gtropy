@@ -17,27 +17,25 @@ class Dictionary:
 
     def search_word(self, word):
         node = self.root
-        closest_word = ""
         for char in word:
             if char not in node.children:
-                break
+                return None
             node = node.children[char]
-            closest_word += char
+        if node.is_word:
+            return word
         else:
-            if node.is_word:
-                return closest_word
-
-        return self.find_closest_word(node, closest_word)
+            return self.find_closest_word(node, word)
 
     def find_closest_word(self, node, prefix):
-        if node.is_word:
-            return prefix
-        
-        closest_word = None
+        closest_word = prefix
+        closest_distance = float('inf')
+
         for char, child_node in node.children.items():
             word = self.find_closest_word(child_node, prefix + char)
-            if closest_word is None or len(word) < len(closest_word):
+            if len(word) < closest_distance:
                 closest_word = word
+                closest_distance = len(word)
+
         return closest_word
 
 # Creating an instance of the dictionary
@@ -60,11 +58,10 @@ try:
     if found_word:
         print(f"Word found in the dictionary: {found_word}")
     else:
-        closest_word = my_dictionary.search_word(search_word)
+        closest_word = my_dictionary.find_closest_word(my_dictionary.root, search_word)
         print(f"No matching word found. Closest word in the dictionary: {closest_word}")
 
 except FileNotFoundError:
     print("File not found. Please check the file path.")
 except Exception as e:
     print(f"An error occurred: {str(e)}")
-
